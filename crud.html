@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script src="crud.js" defer></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CRUD com Array - Gerenciador de Tarefas</title>
@@ -167,129 +168,5 @@
         </ul>
     </div>
 
-    <script>
-        // ==========================================
-        // BACK-END LOGIC (Funções CRUD com Array)
-        // ==========================================
-        let bancoDeDadosTarefas = [];
-        let contadorId = 1;
-
-        // C - CREATE
-        function criarTarefa(titulo, descricao) {
-            const novaTarefa = {
-                id: contadorId++,
-                titulo: titulo,
-                descricao: descricao
-            };
-            bancoDeDadosTarefas.push(novaTarefa);
-            return novaTarefa;
-        }
-
-        // R - READ
-        function listarTarefas() {
-            return bancoDeDadosTarefas;
-        }
-
-        // U - UPDATE
-        function atualizarTarefa(id, novoTitulo, novaDescricao) {
-            const index = bancoDeDadosTarefas.findIndex(t => t.id === id);
-            if (index !== -1) {
-                bancoDeDadosTarefas[index].titulo = novoTitulo;
-                bancoDeDadosTarefas[index].descricao = novaDescricao;
-                return true;
-            }
-            return false;
-        }
-
-        // D - DELETE
-        function deletarTarefa(id) {
-            const index = bancoDeDadosTarefas.findIndex(t => t.id === id);
-            if (index !== -1) {
-                bancoDeDadosTarefas.splice(index, 1);
-                return true;
-            }
-            return false;
-        }
-
-        // ==========================================
-        // FRONT-END INTERFACE & EVENT HANDLERS
-        // ==========================================
-        const taskForm = document.getElementById('taskForm');
-        const taskIdInput = document.getElementById('taskId');
-        const tituloInput = document.getElementById('titulo');
-        const descricaoInput = document.getElementById('descricao');
-        const taskList = document.getElementById('taskList');
-        const btnSalvar = document.getElementById('btnSalvar');
-        const btnCancelar = document.getElementById('btnCancelar');
-
-        function renderizarTarefas() {
-            taskList.innerHTML = '';
-            const tarefas = listarTarefas();
-
-            if (tarefas.length === 0) {
-                taskList.innerHTML = '<p style="text-align: center; color: #9ca3af;">Nenhuma tarefa cadastrada.</p>';
-                return;
-            }
-
-            tarefas.forEach(tarefa => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <div class="task-info">
-                        <h3>${tarefa.titulo}</h3>
-                        <p>${tarefa.descricao}</p>
-                    </div>
-                    <div class="task-actions">
-                        <button class="btn-edit" onclick="prepararEdicao(${tarefa.id}, '${tarefa.titulo}', '${tarefa.descricao}')">Editar</button>
-                        <button class="btn-delete" onclick="remover(${tarefa.id})">Excluir</button>
-                    </div>
-                `;
-                taskList.appendChild(li);
-            });
-        }
-
-        taskForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const id = taskIdInput.value;
-            const titulo = tituloInput.value;
-            const descricao = descricaoInput.value;
-
-            if (id === "") {
-                // CREATE
-                criarTarefa(titulo, descricao);
-            } else {
-                // UPDATE
-                atualizarTarefa(Number(id), titulo, descricao);
-                cancelarEdicao();
-            }
-
-            taskForm.reset();
-            renderizarTarefas();
-        });
-
-        function prepararEdicao(id, titulo, descricao) {
-            taskIdInput.value = id;
-            tituloInput.value = titulo;
-            descricaoInput.value = descricao;
-            btnSalvar.textContent = "Atualizar Tarefa (Update)";
-            btnCancelar.style.display = "block";
-        }
-
-        function cancelarEdicao() {
-            taskIdInput.value = "";
-            taskForm.reset();
-            btnSalvar.textContent = "Adicionar Tarefa (Create)";
-            btnCancelar.style.display = "none";
-        }
-
-        function remover(id) {
-            if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
-                deletarTarefa(id);
-                renderizarTarefas();
-            }
-        }
-
-        // Inicializa a lista vazia ao carregar a página
-        renderizarTarefas();
-    </script>
-</body>
+    
 </html>
