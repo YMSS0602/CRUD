@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD com Array - Gerenciador de Tarefas</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --danger-color: #ef4444;
+            --danger-hover: #dc2626;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-cancel {
+            background-color: #6b7280;
+            margin-top: 5px;
+        }
+
+        .btn-cancel:hover {
+            background-color: #4b5563;
+        }
+
+        hr {
+            margin: 30px 0;
+            border: 0;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+        }
+
+        .task-info p {
+            margin: 0;
+            color: #4b5563;
+            font-size: 14px;
+        }
+
+        .task-actions button {
+            padding: 6px 10px;
+            font-size: 12px;
+            margin-left: 5px;
+            width: auto;
+        }
+
+        .btn-edit {
+            background-color: #f59e0b;
+        }
+        .btn-edit:hover {
+            background-color: #d97706;
+        }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+        }
+        .btn-delete:hover {
+            background-color: var(--danger-hover);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Gerenciador de Tarefas</h1>
+        <p style="text-align: center; color: #6b7280; font-size: 14px;">Demonstração de CRUD utilizando Array em JavaScript</p>
+
+        <!-- Formulário de Cadastro / Edição -->
+        <form id="taskForm">
+            <input type="hidden" id="taskId">
+            <div class="form-group">
+                <label for="titulo">Tarefa:</label>
+                <input type="text" id="titulo" required placeholder="Escreva o título da tarefa">
+            </div>
+            <div class="form-group">
+                <label for="descricao">Descrição:</label>
+                <textarea id="descricao" rows="3" required placeholder="Escreva a descrição da tarefa"></textarea>
+            </div>
+            <button type="submit" id="btnSalvar">Criar Tarefa</button>
+            <button type="button" id="btnCancelar" class="btn-cancel" style="display: none;" onclick="cancelarEdicao()">Cancelar Edição</button>
+        </form>
+
+        <hr>
+
+        <h2>Lista de Tarefas</h2>
+        <ul id="taskList">
+            <!-- As tarefas serão inseridas dinamicamente aqui -->
+        </ul>
+    </div>
+
+    <script>
+        // ==========================================
+        // BACK-END LOGIC (Funções CRUD com Array)
+        // ==========================================
+        let bancoDeDadosTarefas = [];
+        let contadorId = 1;
+
+        // C - CREATE
+        function criarTarefa(titulo, descricao) {
+            const novaTarefa = {
+                id: contadorId++,
+                titulo: titulo,
+                descricao: descricao
+            };
+            bancoDeDadosTarefas.push(novaTarefa);
+            return novaTarefa;
+        }
+
+        // R - READ
+        function listarTarefas() {
+            return bancoDeDadosTarefas;
+        }
+
+        // U - UPDATE
+        function atualizarTarefa(id, novoTitulo, novaDescricao) {
+            const index = bancoDeDadosTarefas.findIndex(t => t.id === id);
+            if (index !== -1) {
+                bancoDeDadosTarefas[index].titulo = novoTitulo;
+                bancoDeDadosTarefas[index].descricao = novaDescricao;
+                return true;
+            }
+            return false;
+        }
+
+        // D - DELETE
+        function deletarTarefa(id) {
+            const index = bancoDeDadosTarefas.findIndex(t => t.id === id);
+            if (index !== -1) {
+                bancoDeDadosTarefas.splice(index, 1);
+                return true;
+            }
+            return false;
+        }
+
+        // ==========================================
+        // FRONT-END INTERFACE & EVENT HANDLERS
+        // ==========================================
+        const taskForm = document.getElementById('taskForm');
+        const taskIdInput = document.getElementById('taskId');
+        const tituloInput = document.getElementById('titulo');
+        const descricaoInput = document.getElementById('descricao');
+        const taskList = document.getElementById('taskList');
+        const btnSalvar = document.getElementById('btnSalvar');
+        const btnCancelar = document.getElementById('btnCancelar');
+
+        function renderizarTarefas() {
+            taskList.innerHTML = '';
+            const tarefas = listarTarefas();
+
+            if (tarefas.length === 0) {
+                taskList.innerHTML = '<p style="text-align: center; color: #9ca3af;">Nenhuma tarefa cadastrada.</p>';
+                return;
+            }
+
+            tarefas.forEach(tarefa => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <div class="task-info">
+                        <h3>${tarefa.titulo}</h3>
+                        <p>${tarefa.descricao}</p>
+                    </div>
+                    <div class="task-actions">
+                        <button class="btn-edit" onclick="prepararEdicao(${tarefa.id}, '${tarefa.titulo}', '${tarefa.descricao}')">Editar</button>
+                        <button class="btn-delete" onclick="remover(${tarefa.id})">Excluir</button>
+                    </div>
+                `;
+                taskList.appendChild(li);
+            });
+        }
+
+        taskForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const id = taskIdInput.value;
+            const titulo = tituloInput.value;
+            const descricao = descricaoInput.value;
+
+            if (id === "") {
+                // CREATE
+                criarTarefa(titulo, descricao);
+            } else {
+                // UPDATE
+                atualizarTarefa(Number(id), titulo, descricao);
+                cancelarEdicao();
+            }
+
+            taskForm.reset();
+            renderizarTarefas();
+        });
+
+        function prepararEdicao(id, titulo, descricao) {
+            taskIdInput.value = id;
+            tituloInput.value = titulo;
+            descricaoInput.value = descricao;
+            btnSalvar.textContent = "Atualizar Tarefa (Update)";
+            btnCancelar.style.display = "block";
+        }
+
+        function cancelarEdicao() {
+            taskIdInput.value = "";
+            taskForm.reset();
+            btnSalvar.textContent = "Adicionar Tarefa (Create)";
+            btnCancelar.style.display = "none";
+        }
+
+        function remover(id) {
+            if (confirm("Tem certeza que deseja excluir esta tarefa?")) {
+                deletarTarefa(id);
+                renderizarTarefas();
+            }
+        }
+
+        // Inicializar a lista vazia ao carregar a página
+        renderizarTarefas();
+    </script>
+</body>
+</html>
